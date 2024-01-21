@@ -11,8 +11,6 @@ type Zone struct {
 	ClubID uint
 	Num    uint
 	Name   string
-	//CreatedAt time.Time
-	//UpdatedAt time.Time
 }
 
 func (Zone) TableName() string {
