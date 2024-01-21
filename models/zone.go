@@ -24,7 +24,7 @@ func (Zone) AddZone(w http.ResponseWriter, r *http.Request) {
 	zoneName := r.FormValue("zone_name")
 	if clubId != "" && zoneName != "" {
 		var maximum int
-		Database.Model(&Zone{}).Select("MAX(num) as max").Where("club_id = ?", 1).Scan(&maximum)
+		Database.Model(&Zone{}).Select("MAX(num) as max").Where("club_id = ?", clubId).Scan(&maximum)
 		clubIdInt, _ := strconv.Atoi(clubId)
 		zone := Zone{
 			Num:    uint(maximum + 1),
