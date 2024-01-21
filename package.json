@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "dev": "npx webpack --mode development",
+    "prod": "npx webpack --mode production",
+    "watch": "npx webpack --watch"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "^3.3.1",
+    "babel-loader": "^9.1.2",
+    "css-loader": "^6.7.3",
+    "pug-html-loader": "^1.1.5",
+    "style-loader": "^3.3.2",
+    "vue": "^3.2.36",
+    "vue-loader": "^17.0.1",
+    "webpack": "^5.82.1",
+    "webpack-cli": "^5.1.1",
+    "sass": "^1.67.0",
+    "sass-loader": "^13.3.2",
+    "source-map-loader": "^4.0.1",
+    "postcss-loader": "^7.3.3"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3",
+    "vue-google-charts": "^1.1.0"
+  }
+}

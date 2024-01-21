@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Products</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body>
+<div id="app">
+    <main>
+        <div style="display: flex">
+            <left-menu></left-menu>
+            <div>
+                <top name="Вася" club_id="1" user_id="5" icon="https://static.tildacdn.com/tild3730-3038-4166-b839-653134356461/man.png"></top>
+                {{template "content" .}}
+            </div>
+        </div>
+    </main>
+</div>
+<script src="/main.bundle.js"></script>
+<link href="/css/styles.css" rel="stylesheet">
+</body>
+</html>

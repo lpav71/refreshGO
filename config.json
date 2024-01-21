@@ -1,0 +1,5 @@
+{
+  "database": {
+    "connectionString": "host=127.0.0.1 user=postgres password=Q12801024q dbname=gt port=5432 sslmode=disable TimeZone=Europe/Moscow"
+  }
+}

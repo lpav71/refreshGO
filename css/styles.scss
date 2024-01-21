@@ -1,0 +1,13 @@
+$tooltip-opacity: 1;
+
+@import "~bootstrap/scss/bootstrap";
+
+.custom-tooltip {
+  --bs-tooltip-bg: #287bbe;
+}
+
+a {
+  color: #0275d8;
+  text-decoration: none;
+  background-color: transparent;
+}
