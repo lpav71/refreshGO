@@ -22,6 +22,7 @@ func main() {
 	file, err := os.Open("config.json")
 	if err != nil {
 		fmt.Println("Error opening file:", err)
+		fmt.Scanln()
 		return
 	}
 	defer file.Close()
@@ -31,6 +32,7 @@ func main() {
 	err = decoder.Decode(&config)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
+		fmt.Scanln()
 		return
 	}
 
@@ -38,7 +40,8 @@ func main() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	models.Database = db
 	if err != nil {
-		panic("failed to connect database")
+		fmt.Println("failed to connect database")
+		fmt.Scanln()
 	}
 
 	StartRouter()
