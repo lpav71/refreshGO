@@ -86,6 +86,7 @@ func (Map) SaveNewPosition(w http.ResponseWriter, r *http.Request) {
 	if err.Error != nil {
 		id := 0
 		idBytes := []byte(strconv.Itoa(id))
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(idBytes)
 	} else {
 		id := map1.ID
