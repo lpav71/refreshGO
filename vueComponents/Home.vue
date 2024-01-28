@@ -304,7 +304,7 @@
         </div>
       </div>
     </div>
-    <calendar ref="calandarStart" style:="position: absolute" @item-selected="calendarSelectStart"></calendar>
+<!--    <calendar ref="calandarStart" style:="position: absolute" @item-selected="calendarSelectStart"></calendar>-->
   </div>
 
   <!-- Уведомление -->
@@ -514,16 +514,16 @@ export default {
       }
     },
     editTask(i) {
-      this.descript_admin = this.tasks[i].descript_admin;
-      this.datePublic = this.tasks[i].create_dt;
-      this.admin_id = this.tasks[i].admin_id;
-      var executor_id = this.tasks[i].employ;
+      this.descript_admin = this.tasks[i].DescriptAdmin;
+      this.datePublic = this.tasks[i].CreateDT;
+      this.admin_id = this.tasks[i].AdminID;
+      var executor_id = this.tasks[i].Employ;
       this.users.forEach((item, index) => {
-        if (item.id == executor_id) {
-          this.executor = item.id;
+        if (item.ID == executor_id) {
+          this.executor = item.ID;
         }
       });
-      this.id_task = this.tasks[i].id;
+      this.id_task = this.tasks[i].ID;
       this.editTaskModal.show();
     },
     async saveEditTask() {
@@ -537,7 +537,7 @@ export default {
       urlencoded.append("days", this.days);
       urlencoded.append("hours", this.hours);
       urlencoded.append("executor", this.executor);
-      urlencoded.append("club_id", this.club.id);
+      urlencoded.append("club_id", this.$props.club);
       urlencoded.append("admin_id", this.admin_id);
       urlencoded.append("descript_admin", this.descript_admin);
 

@@ -82,9 +82,15 @@ func (Map) SaveNewPosition(w http.ResponseWriter, r *http.Request) {
 		UserID: 440,
 	}
 
-	Database.Create(&map1)
-	id := map1.ID
-	idBytes := []byte(strconv.Itoa(id))
+	err := Database.Create(&map1)
+	if err.Error != nil {
+		id := 0
+		idBytes := []byte(strconv.Itoa(id))
+		w.Write(idBytes)
+	} else {
+		id := map1.ID
+		idBytes := []byte(strconv.Itoa(id))
 
-	w.Write(idBytes)
+		w.Write(idBytes)
+	}
 }

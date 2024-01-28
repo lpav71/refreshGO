@@ -25,6 +25,7 @@ func StartRouter() {
 	routerApi.HandleFunc("/api/client/getlogin", models.ClientTable{}.GetLogin)
 	routerApi.HandleFunc("/api/tasks/users", models.User{}.Users)
 	routerApi.HandleFunc("/api/zone/add", models.Zone{}.AddZone)
+	routerApi.HandleFunc("/api/tasks/save/edit", models.Task{}.SaveEditModal)
 
 	http.Handle("/", router)
 	http.Handle("/api/", routerApi)

@@ -29,9 +29,19 @@ func (Zone) AddZone(w http.ResponseWriter, r *http.Request) {
 			ClubID: uint(clubIdInt),
 			Name:   zoneName,
 		}
-		Database.Create(&zone)
-		jsonData, _ := json.Marshal(zone)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
+		err := Database.Create(&zone)
+
+		if err.Error != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+
+			jsonData := []byte(`{"message": "Bad Request"}`)
+			w.Write(jsonData)
+		} else {
+			jsonData, _ := json.Marshal(zone)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(jsonData)
+		}
 	}
 }
