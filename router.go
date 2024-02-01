@@ -15,6 +15,9 @@ func StartRouter() {
 
 	router.HandleFunc("/", controllers.Home)
 	router.HandleFunc("/shop", controllers.Shop)
+	router.HandleFunc("/map", controllers.Maps)
+	router.HandleFunc("/warehouse", controllers.Warehouse)
+	router.HandleFunc("/finduser", controllers.Users)
 
 	//API
 	routerApi.HandleFunc("/api/users/get-all", models.GetAllUsers)
@@ -32,6 +35,10 @@ func StartRouter() {
 	routerApi.HandleFunc("/api/shop/get", models.Store{}.GetAll)
 	routerApi.HandleFunc("/api/client/all", models.ClientTable{}.GetClients)
 	routerApi.HandleFunc("/api/shop/find/client", models.ClientTable{}.GetByLogin)
+	routerApi.HandleFunc("/api/computer/all", models.Map{}.GetAllComputers)
+	routerApi.HandleFunc("/api/store/operation/type", models.StoreOperationType{}.GetStoreOparationType)
+	routerApi.HandleFunc("/api/client/find", models.ClientTable{}.UsersFind)
+	routerApi.HandleFunc("/api/age-filter", models.ClientTable{}.AgeFilter)
 
 	http.Handle("/", router)
 	http.Handle("/api/", routerApi)

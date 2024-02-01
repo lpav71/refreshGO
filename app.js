@@ -18,6 +18,12 @@ import TopComponent from "./vueComponents/Top.vue";
 app.component('top', TopComponent);
 import ShopComponent from "./vueComponents/Shop.vue";
 app.component('shop', ShopComponent);
+import MapsComponent from "./vueComponents/Maps.vue";
+app.component('maps', MapsComponent);
+import WarehouseComponent from "./vueComponents/Warehouse.vue";
+app.component('warehouse', WarehouseComponent);
+import UsersComponent from "./vueComponents/Users.vue";
+app.component('users', UsersComponent);
 
 app.mount('#app');
 

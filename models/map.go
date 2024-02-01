@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 )
@@ -94,4 +95,14 @@ func (Map) SaveNewPosition(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(idBytes)
 	}
+}
+
+func (Map) GetAllComputers(w http.ResponseWriter, r *http.Request) {
+	clubID := r.FormValue("club_id")
+	clubIDInt, _ := strconv.Atoi(clubID)
+	var comps []Map
+	Database.Where("club_id = ?", clubIDInt).Order("id_comp").Find(&comps)
+	jsonData, _ := json.Marshal(comps)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
 }

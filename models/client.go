@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -63,7 +64,6 @@ func (ClientTable) GetLogin(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 	}
 }
-
 func (ClientTable) GetClients(w http.ResponseWriter, r *http.Request) {
 	clubID := r.FormValue("club_id")
 	var clients []Client
@@ -71,11 +71,43 @@ func (ClientTable) GetClients(w http.ResponseWriter, r *http.Request) {
 	jsonData, _ := json.Marshal(clients)
 	w.Write(jsonData)
 }
-
 func (ClientTable) GetByLogin(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	var client ClientTable
 	Database.Where("login = ?", login).First(&client)
 	jsonData, _ := json.Marshal(client)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
+}
+func (ClientTable) UsersFind(w http.ResponseWriter, r *http.Request) {
+	clubID := r.FormValue("club_id")
+	searchUser := r.FormValue("searchUser")
+	clubIDInt, _ := strconv.ParseInt(clubID, 10, 32)
+	var clients []ClientTable
+	Database.Where("login ILIKE ?", "%"+searchUser+"%").Where("club_id = ?", clubIDInt).Find(&clients)
+	jsonData, _ := json.Marshal(clients)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
+}
+func (ClientTable) AgeFilter(w http.ResponseWriter, r *http.Request) {
+	age := r.FormValue("age")
+	var clients []Client
+
+	switch age {
+	case "0-12":
+		Database.Where("age(bday) BETWEEN '0 years' AND '12 years'").Find(&clients)
+	case "12-16":
+		Database.Where("age(bday) BETWEEN '12 years' AND '16 years'").Find(&clients)
+	case "16-18":
+		Database.Where("age(bday) BETWEEN '16 years' AND '18 years'").Find(&clients)
+	case "18-24":
+		Database.Where("age(bday) BETWEEN '18 years' AND '24 years'").Find(&clients)
+	case "25-29":
+		Database.Where("age(bday) BETWEEN '24 years' AND '29 years'").Find(&clients)
+	case "30-999":
+		Database.Where("age(bday) BETWEEN '30 years' AND '999 years'").Find(&clients)
+	}
+	jsonData, _ := json.Marshal(clients)
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
 }

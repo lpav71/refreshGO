@@ -24,6 +24,7 @@ type Store struct {
 	PriceBonus   float64   `gorm:"column:price_bonus"`
 	Discount     bool      `gorm:"column:discount"`
 	Nalog        int       `gorm:"column:nalog"`
+	Name         string
 }
 
 type ProductType struct {
