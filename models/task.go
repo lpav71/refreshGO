@@ -44,7 +44,7 @@ func (Task) Tasks(w http.ResponseWriter, r *http.Request) {
 	clubId := r.FormValue("club_id")
 	var tasks []Task1
 	err := Database.Table("task").
-		Select("task.id, club_id, admin_id, TO_CHAR(create_dt, 'MM.DD.YYYY HH:MI') as create_dt, employ, descript_admin, color").
+		Select("task.id, club_id, admin_id, TO_CHAR(create_dt, 'DD.MM.YYYY HH24:MI') as create_dt, employ, descript_admin, color").
 		Joins("JOIN task_description ON task_description.id = task.status").
 		Where("club_id = ? AND admin_id = ? AND status IN (?)", clubId, 7, []int{1, 2}).
 		Order("create_dt").
@@ -71,7 +71,7 @@ func (Task) SaveEditModal(w http.ResponseWriter, r *http.Request) {
 	clubID := r.FormValue("club_id")
 	adminID := r.FormValue("admin_id")
 
-	datePublicParsed, _ := time.Parse("2006-01-02", datePublic)
+	datePublicParsed, _ := time.Parse("02.01.2006 15:04", datePublic)
 	daysInt, _ := strconv.Atoi(days)
 	hoursInt, _ := strconv.Atoi(hours)
 
@@ -94,9 +94,6 @@ func (Task) SaveEditModal(w http.ResponseWriter, r *http.Request) {
 	clubIDInt, _ := strconv.Atoi(clubID)
 	taskClubID := clubIDInt
 	task.ClubID = &taskClubID
-
-	status := 1
-	task.Status = &status
 
 	err := Database.Save(&task)
 	if err.Error != nil {

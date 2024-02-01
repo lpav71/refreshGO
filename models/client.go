@@ -7,10 +7,10 @@ import (
 )
 
 type ClientTable struct {
-	ID           int    `gorm:"primary_key"`
-	ClubID       int    `gorm:"column:club_id"`
-	Login        string `gorm:"not null"`
-	Password     string // Если нужно по умолчанию NULL поле можно не указывать
+	ID     int    `gorm:"primary_key"`
+	ClubID int    `gorm:"column:club_id"`
+	Login  string `gorm:"not null"`
+	//Password     string // Если нужно по умолчанию NULL поле можно не указывать
 	Phone        string `gorm:"not null"`
 	Email        string `gorm:"not null;unique_index:clients_email"`
 	Icon         string
@@ -33,7 +33,7 @@ type ClientTable struct {
 	GroupCreate  *time.Time `gorm:"column:group_create"`
 }
 
-// Указание имени таблицы для модели Client
+// TableName Указание имени таблицы для модели Client
 func (ClientTable) TableName() string {
 	return "clients"
 }
@@ -62,4 +62,20 @@ func (ClientTable) GetLogin(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
 	}
+}
+
+func (ClientTable) GetClients(w http.ResponseWriter, r *http.Request) {
+	clubID := r.FormValue("club_id")
+	var clients []Client
+	Database.Where("club_id = ?", clubID).Find(&clients)
+	jsonData, _ := json.Marshal(clients)
+	w.Write(jsonData)
+}
+
+func (ClientTable) GetByLogin(w http.ResponseWriter, r *http.Request) {
+	login := r.FormValue("login")
+	var client ClientTable
+	Database.Where("login = ?", login).First(&client)
+	jsonData, _ := json.Marshal(client)
+	w.Write(jsonData)
 }

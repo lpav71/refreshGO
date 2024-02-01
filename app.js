@@ -16,6 +16,8 @@ import LeftComponent from "./vueComponents/LeftMenu.vue";
 app.component('left-menu', LeftComponent);
 import TopComponent from "./vueComponents/Top.vue";
 app.component('top', TopComponent);
+import ShopComponent from "./vueComponents/Shop.vue";
+app.component('shop', ShopComponent);
 
 app.mount('#app');
 
