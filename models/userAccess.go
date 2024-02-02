@@ -33,7 +33,7 @@ func (UserAccess) TableName() string {
 }
 
 func (UserAccess) GetPermisions(w http.ResponseWriter, r *http.Request) {
-	var userAccess []UserAccess
+	var userAccess UserAccess
 	r.ParseForm()
 	clubId := r.Form.Get("club_id")
 	userId := r.Form.Get("user_id")

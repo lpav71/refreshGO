@@ -641,7 +641,7 @@ export default {
       var response = await fetch("api/user/getpermissions", requestOptions);
       if (response.ok) {
         const permissions = await response.json();
-        this.permissions = permissions[0];
+        this.permissions = permissions;
       }
       else {
         //this.$refs.message.modal.show();

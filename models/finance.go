@@ -77,3 +77,23 @@ func (Finance) GetSmena(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
 }
+
+func (Finance) FindOpenShift(w http.ResponseWriter, r *http.Request) {
+	clubID := r.FormValue("club_id")
+	var count int64
+	Database.Model(&Finance{}).Where("status = ?", true).Where("club_id = ?", clubID).Count(&count)
+
+	var outData map[string]string
+	if count > 0 {
+		outData = map[string]string{
+			"shiftStatus": "open",
+		}
+	} else {
+		outData = map[string]string{
+			"shiftStatus": "close",
+		}
+	}
+	jsonData, _ := json.Marshal(outData)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
+}

@@ -118,13 +118,13 @@
                         <div class="div_1"><span style="margin-left: 10px">Сумма</span><input id="sum" class="input_1" v-model.number="summa" @input="numVerify" type="text" maxlength="10" /></div>
                         <div class="div_2">
                             <div class="div_3"><span>Способы оплаты</span>
-                                <div class="div_4" v-show="permissions.balance_money">
+                                <div class="div_4" v-show="permissions.BalanceMoney">
                                     <div class="form-check form-check-reverse text-start"><input id="formCheck-1" class="form-check-input check-1" type="radio" name="payment" v-model="pay" value="cash" style="opacity: 0;position: absolute;z-index: -1;" /><label class="form-check-label label-1" for="formCheck-1">Наличные</label></div>
                                 </div>
-                                <div class="div_4" v-show="permissions.balance_money">
+                                <div class="div_4" v-show="permissions.BalanceMoney">
                                     <div class="form-check form-check-reverse text-start"><input id="formCheck-3" class="form-check-input check-1" type="radio" name="payment" v-model="pay" value="card" style="opacity: 0;position: absolute;z-index: -1;" /><label class="form-check-label label-1" for="formCheck-3">Карта</label></div>
                                 </div>
-                                <div class="div_4" v-show="permissions.balance_bonus">
+                                <div class="div_4" v-show="permissions.BalanceBonus">
                                     <div class="form-check form-check-reverse text-start"><input id="formCheck-2" class="form-check-input check-1" type="radio" name="payment" v-model="pay" value="bonus" style="opacity: 0;position: absolute;z-index: -1;" /><label class="form-check-label label-1" for="formCheck-2">Бонусная валюта</label></div>
                                 </div>
                             </div>
@@ -561,6 +561,7 @@ export default {
             };
             console.log(JSON.stringify(outData));
             this.messages = [];
+            this.modal.hide();
         },
         async topBalance(i, login) {
             this.login = login;
@@ -574,8 +575,7 @@ export default {
             myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
             var urlencoded = new URLSearchParams();
-            urlencoded.append("club_id", this.findUsers[i].club_id);
-
+            urlencoded.append("club_id", this.$props.club_id);
             var requestOptions = {
                 method: 'POST',
                 headers: myHeaders,
@@ -617,7 +617,7 @@ export default {
                 redirect: 'follow'
             };
 
-            var response = await fetch("api/findusers", requestOptions);
+            var response = await fetch("api/client/find", requestOptions);
             if (response.ok) {
                 this.findUsers = await response.json();
             }
@@ -857,7 +857,7 @@ $paddingTable: 10px;
 
 .label-1 {
     font-size: 15px;
-    width: 500px;
+    width: 180px;
 }
 
 .check-2 + label {
@@ -879,7 +879,7 @@ $paddingTable: 10px;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 50% 50%;
-    left: 416px;
+    left: 438px;
     position: absolute;
 }
 

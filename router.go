@@ -41,6 +41,7 @@ func StartRouter() {
 	routerApi.HandleFunc("/api/age-filter", models.ClientTable{}.AgeFilter)
 	routerApi.HandleFunc("/api/export/clients", models.ClientTable{}.ExportClients)
 	routerApi.HandleFunc("/api/import/clients", models.ClientTable{}.ImportClients)
+	routerApi.HandleFunc("/api/findopenshift", models.Finance{}.FindOpenShift)
 
 	http.Handle("/", router)
 	http.Handle("/api/", routerApi)

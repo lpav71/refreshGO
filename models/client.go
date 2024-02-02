@@ -14,27 +14,27 @@ import (
 )
 
 type ClientTable struct {
-	ID           int    `gorm:"primary_key"`
-	ClubID       int    `gorm:"column:club_id"`
-	Login        string `gorm:"not null"`
-	Password     string // Если нужно по умолчанию NULL поле можно не указывать
-	Phone        string `gorm:"not null"`
-	Email        string `gorm:"not null;unique_index:clients_email"`
-	Icon         string
-	Amount       float64 `gorm:"default:0"`
-	Bonus        float64 `gorm:"default:0"`
-	TotalTime    int     `gorm:"default:0"`
-	FullName     string
+	ID           int     `gorm:"primary_key"`
+	ClubID       *int    `gorm:"column:club_id"`
+	Login        string  `gorm:"not null"`
+	Password     *string // Если нужно по умолчанию NULL поле можно не указывать
+	Phone        string  `gorm:"not null"`
+	Email        string  `gorm:"not null;unique_index:clients_email"`
+	Icon         *string
+	Amount       *float64 `gorm:"default:0"`
+	Bonus        *float64 `gorm:"default:0"`
+	TotalTime    *int     `gorm:"default:0"`
+	FullName     *string
 	StatusActive *bool      `gorm:"column:status_active"`
-	TelegramID   string     `gorm:"column:telegram_id"`
-	VKID         string     `gorm:"column:vk_id"`
+	TelegramID   *string    `gorm:"column:telegram_id"`
+	VKID         *string    `gorm:"column:vk_id"`
 	RegDate      *time.Time `gorm:"default:now()"`
 	BDay         *time.Time `gorm:"column:bday"`
 	Verify       *bool      `gorm:"default:false"`
 	VerifyDt     *time.Time `gorm:"column:verify_dt"`
-	MiddleName   string     `gorm:"column:middle_name"`
-	Surname      string     `gorm:"column:surname"`
-	Name         string     `gorm:"column:name"`
+	MiddleName   *string    `gorm:"column:middle_name"`
+	Surname      *string    `gorm:"column:surname"`
+	Name         *string    `gorm:"column:name"`
 	GroupID      int        `gorm:"not null;default:0"`
 	GroupAmount  float64    `gorm:"not null;default:0"`
 	GroupCreate  *time.Time `gorm:"column:group_create"`
@@ -171,48 +171,130 @@ func runExportClients(clients []ClientTable) string {
 	// Записываем данные пользователей
 	for _, user := range clients {
 
-		var userVerify string
-		if user.Verify != nil {
-			userVerify = strconv.FormatBool(*user.Verify)
+		var ClubID string
+		if user.ClubID != nil {
+			ClubID = strconv.Itoa(*user.ClubID)
+		} else {
+			ClubID = ""
+		}
+		var Password string
+		if user.Password != nil {
+			Password = *user.Password
+		} else {
+			Password = ""
+		}
+		var Icon string
+		if user.Icon != nil {
+			Icon = *user.Icon
+		} else {
+			Icon = ""
+		}
+		var Amount string
+		if user.Amount != nil {
+			Amount = strconv.FormatFloat(*user.Amount, 'f', -1, 64)
+		} else {
+			Amount = ""
+		}
+		var Bonus string
+		if user.Bonus != nil {
+			Bonus = strconv.FormatFloat(*user.Amount, 'f', -1, 64)
+		} else {
+			Bonus = ""
+		}
+		var TotalTime string
+		if user.TotalTime != nil {
+			TotalTime = strconv.Itoa(*user.TotalTime)
+		} else {
+			TotalTime = ""
+		}
+		var FullName string
+		if user.FullName != nil {
+			FullName = *user.FullName
+		} else {
+			FullName = ""
+		}
+		var StatusActive string
+		if user.StatusActive != nil {
+			StatusActive = strconv.FormatBool(*user.StatusActive)
+		} else {
+			StatusActive = ""
+		}
+		var TelegramID string
+		if user.TelegramID != nil {
+			TelegramID = *user.TelegramID
+		} else {
+			TelegramID = ""
 		}
 		var userVerifyDT string
 		if user.VerifyDt != nil {
 			userVerifyDT = user.VerifyDt.Format("2006-01-02 15:04:05")
+		} else {
+			userVerifyDT = ""
 		}
 		var BDay string
 		if user.BDay != nil {
 			BDay = user.BDay.Format("2006-01-02")
+		} else {
+			BDay = ""
 		}
 		var RegDate string
 		if user.RegDate != nil {
 			RegDate = user.RegDate.Format("2006-01-02")
+		} else {
+			RegDate = ""
+		}
+		var Verify string
+		if user.RegDate != nil {
+			Verify = strconv.FormatBool(*user.Verify)
+		} else {
+			Verify = ""
+		}
+		var MiddleName string
+		if user.MiddleName != nil {
+			MiddleName = *user.MiddleName
+		} else {
+			MiddleName = ""
+		}
+		var Surname string
+		if user.Surname != nil {
+			Surname = *user.Surname
+		} else {
+			Surname = ""
+		}
+		var Name string
+		if user.Name != nil {
+			Name = *user.Name
+		} else {
+			Name = ""
 		}
 		var GroupCreate string
 		if user.GroupCreate != nil {
 			GroupCreate = user.GroupCreate.Format("2006-01-02 15:04:05")
+		} else {
+			GroupCreate = ""
 		}
 		err := writer.Write([]string{
 			strconv.Itoa(user.ID),
-			strconv.Itoa(user.ClubID),
+			ClubID,
 			user.Login,
-			user.Password,
+			Password,
 			user.Phone,
 			user.Email,
-			user.Icon,
-			strconv.FormatFloat(user.Amount, 'f', 2, 64),
-			strconv.FormatFloat(user.Bonus, 'f', 2, 64),
-			strconv.Itoa(user.TotalTime),
-			user.FullName,
-			strconv.FormatBool(*user.StatusActive),
-			user.TelegramID,
-			user.VKID,
+			Icon,
+			Amount,
+			Bonus,
+			TotalTime,
+			FullName,
+			StatusActive,
+			TelegramID,
+			*user.VKID,
 			RegDate,
 			BDay,
-			userVerify,
+			Verify,
 			userVerifyDT,
-			user.MiddleName,
-			user.Surname,
-			user.Name,
+			MiddleName,
+			Surname,
+			Name,
 			strconv.Itoa(user.GroupID),
 			strconv.FormatFloat(user.GroupAmount, 'f', -1, 64),
 			GroupCreate,
@@ -258,26 +340,26 @@ func insertNewRecords(clientsFromFile [][]string) {
 				GroupAmount, _ := strconv.ParseFloat(clientFromFile[22], 64)
 
 				client := ClientTable{
-					ClubID:       clientFromFile1,
+					ClubID:       &clientFromFile1,
 					Login:        clientFromFile[2],
-					Password:     clientFromFile[3],
+					Password:     &clientFromFile[3],
 					Phone:        clientFromFile[4],
 					Email:        clientFromFile[5],
-					Icon:         clientFromFile[6],
-					Amount:       clientFromFile7,
-					Bonus:        clientFromFile8,
-					TotalTime:    clientFromFile9,
-					FullName:     clientFromFile[10],
+					Icon:         &clientFromFile[6],
+					Amount:       &clientFromFile7,
+					Bonus:        &clientFromFile8,
+					TotalTime:    &clientFromFile9,
+					FullName:     &clientFromFile[10],
 					StatusActive: statusActiveBool,
-					TelegramID:   clientFromFile[12],
-					VKID:         clientFromFile[13],
+					TelegramID:   &clientFromFile[12],
+					VKID:         &clientFromFile[13],
 					RegDate:      RegDate,
 					BDay:         parseDateTime(clientFromFile[15]),
 					Verify:       Verify,
 					VerifyDt:     parseDateTime(clientFromFile[17]),
-					Name:         clientFromFile[18],
-					Surname:      clientFromFile[19],
-					MiddleName:   clientFromFile[20],
+					Name:         &clientFromFile[18],
+					Surname:      &clientFromFile[19],
+					MiddleName:   &clientFromFile[20],
 					GroupID:      GroupId,
 					GroupAmount:  GroupAmount,
 					GroupCreate:  groupCreate,
