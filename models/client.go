@@ -128,25 +128,13 @@ func (ClientTable) ExportClients(w http.ResponseWriter, r *http.Request) {
 func (ClientTable) ImportClients(w http.ResponseWriter, r *http.Request) {
 	fileName, _, _ := r.FormFile("filename")
 	var dataFromFile [][]string
-	var ids []int
-	var clients []ClientTable
-	dataFromFile, ids = readCSVFile(fileName)
-	fmt.Println(dataFromFile, ids)
-	insertNewRecords(dataFromFile, clients)
+	dataFromFile = readCSVFile(fileName)
+	insertNewRecords(dataFromFile)
 }
 
-func readCSVFile(fileName multipart.File) ([][]string, []int) {
-
-	//file, handler, err := fileName // получаем файл из формы
+func readCSVFile(fileName multipart.File) [][]string {
 
 	defer fileName.Close()
-
-	//path, err := os.Getwd()
-	//file, err := os.Open(path + fileName)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer file.Close()
 
 	reader := csv.NewReader(fileName)
 	reader.Comma = ';'
@@ -163,7 +151,7 @@ func readCSVFile(fileName multipart.File) ([][]string, []int) {
 		id, _ := strconv.Atoi(line[0])
 		ids = append(ids, id)
 	}
-	return clientsFromFile, ids
+	return clientsFromFile
 }
 func runExportClients(clients []ClientTable) string {
 	date := time.Now().Format("2006-01-02 15:04:05")
@@ -236,8 +224,7 @@ func runExportClients(clients []ClientTable) string {
 	}
 	return fileName
 }
-
-func insertNewRecords(clientsFromFile [][]string, clients []ClientTable) {
+func insertNewRecords(clientsFromFile [][]string) {
 	for _, clientFromFile := range clientsFromFile {
 		var client ClientTable
 		err := Database.Where("login = ?", clientFromFile[2]).First(&client).Error
@@ -300,7 +287,6 @@ func insertNewRecords(clientsFromFile [][]string, clients []ClientTable) {
 		}
 	}
 }
-
 func parseDateTime(dateTimeStr string) *time.Time {
 	if dateTimeStr == "" {
 		return nil
