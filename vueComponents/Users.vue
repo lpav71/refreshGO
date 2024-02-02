@@ -445,7 +445,7 @@ export default {
             var response = await fetch("api/export/clients", requestOptions);
             if (response.ok) {
                 this.filename = await response.text();
-                this.filename = 'CSV/' + this.filename;
+                this.filename = 'files/' + this.filename;
                 setTimeout(function (){
                     this.$refs.csvfile.click();
                 }.bind(this), 500)

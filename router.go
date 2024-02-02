@@ -39,6 +39,8 @@ func StartRouter() {
 	routerApi.HandleFunc("/api/store/operation/type", models.StoreOperationType{}.GetStoreOparationType)
 	routerApi.HandleFunc("/api/client/find", models.ClientTable{}.UsersFind)
 	routerApi.HandleFunc("/api/age-filter", models.ClientTable{}.AgeFilter)
+	routerApi.HandleFunc("/api/export/clients", models.ClientTable{}.ExportClients)
+	routerApi.HandleFunc("/api/import/clients", models.ClientTable{}.ImportClients)
 
 	http.Handle("/", router)
 	http.Handle("/api/", routerApi)
@@ -58,6 +60,9 @@ func StartRouter() {
 
 	css := http.FileServer(http.Dir("views/css"))
 	http.Handle("/css/", http.StripPrefix("/css/", css))
+
+	files := http.FileServer(http.Dir("views/files"))
+	http.Handle("/files/", http.StripPrefix("/files/", files))
 
 	fonts := http.FileServer(http.Dir("views/fonts"))
 	http.Handle("/fonts/", http.StripPrefix("/fonts/", fonts))
