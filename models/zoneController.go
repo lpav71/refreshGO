@@ -3,9 +3,12 @@ package models
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 )
 
 func GetMapPosition(w http.ResponseWriter, r *http.Request) {
+	var wg sync.WaitGroup
+	wg.Add(3) // Увеличиваем счетчик на количество горутин, которые нужно ожидать
 	// Разбор параметров запроса
 	r.ParseForm()
 	clubId := r.Form.Get("club_id")
@@ -16,10 +19,11 @@ func GetMapPosition(w http.ResponseWriter, r *http.Request) {
 	var mapChan = make(chan []Map, 1)
 
 	// Запуск горутины для получения
-	go getZone(clubId, zone2Chan)
-	go getMap(clubId, mapChan)
-	go getMapZone(clubId, zoneChan)
+	go getZone(clubId, zone2Chan, &wg)
+	go getMap(clubId, mapChan, &wg)
+	go getMapZone(clubId, zoneChan, &wg)
 
+	wg.Wait()
 	// Получение данных из каналов
 	zones := <-zoneChan
 	zone2 := <-zone2Chan
@@ -43,7 +47,8 @@ func GetMapPosition(w http.ResponseWriter, r *http.Request) {
 	w.Write(zoneData)
 }
 
-func getMapZone(clubId string, zoneChan chan []Zone) {
+func getMapZone(clubId string, zoneChan chan []Zone, wg *sync.WaitGroup) {
+	defer wg.Done()
 	// Получение данных о зонах из базы данных
 	var zones []Zone
 	err := Database.Table("zone").
@@ -63,7 +68,8 @@ func getMapZone(clubId string, zoneChan chan []Zone) {
 	zoneChan <- zones
 }
 
-func getZone(clubId string, zone2Chan chan []Zone) {
+func getZone(clubId string, zone2Chan chan []Zone, wg *sync.WaitGroup) {
+	defer wg.Done()
 	var zone []Zone
 	err := Database.Where("club_id = ?", clubId).Find(&zone).Error
 	if err != nil {
@@ -76,7 +82,8 @@ func getZone(clubId string, zone2Chan chan []Zone) {
 	zone2Chan <- zone
 }
 
-func getMap(clubId string, map1 chan []Map) {
+func getMap(clubId string, map1 chan []Map, wg *sync.WaitGroup) {
+	defer wg.Done()
 	var maps []Map
 	err := Database.Where("club_id = ?", clubId).Find(&maps).Error
 	if err != nil {
