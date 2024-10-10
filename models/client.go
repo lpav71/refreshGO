@@ -153,13 +153,19 @@ func readCSVFile(fileName multipart.File) [][]string {
 	}
 	return clientsFromFile
 }
+func getValueString[T any](ptr *T, formatFunc func(T) string) string {
+	if ptr == nil {
+		return ""
+	}
+	return formatFunc(*ptr)
+}
+
 func runExportClients(clients []ClientTable) string {
 	date := time.Now().Format("2006-01-02 15:04:05")
 	fileName := fmt.Sprintf("%x.csv", md5.Sum([]byte(date)))
 
 	file, err := os.Create("views/files/" + fileName)
 	if err != nil {
-		// Обработка ошибки создания файла
 		return ""
 	}
 	defer file.Close()
@@ -168,136 +174,32 @@ func runExportClients(clients []ClientTable) string {
 	writer.Comma = ';'
 	defer writer.Flush()
 
-	// Записываем данные пользователей
 	for _, user := range clients {
-
-		var ClubID string
-		if user.ClubID != nil {
-			ClubID = strconv.Itoa(*user.ClubID)
-		} else {
-			ClubID = ""
-		}
-		var Password string
-		if user.Password != nil {
-			Password = *user.Password
-		} else {
-			Password = ""
-		}
-		var Icon string
-		if user.Icon != nil {
-			Icon = *user.Icon
-		} else {
-			Icon = ""
-		}
-		var Amount string
-		if user.Amount != nil {
-			Amount = strconv.FormatFloat(*user.Amount, 'f', -1, 64)
-		} else {
-			Amount = ""
-		}
-		var Bonus string
-		if user.Bonus != nil {
-			Bonus = strconv.FormatFloat(*user.Amount, 'f', -1, 64)
-		} else {
-			Bonus = ""
-		}
-		var TotalTime string
-		if user.TotalTime != nil {
-			TotalTime = strconv.Itoa(*user.TotalTime)
-		} else {
-			TotalTime = ""
-		}
-		var FullName string
-		if user.FullName != nil {
-			FullName = *user.FullName
-		} else {
-			FullName = ""
-		}
-		var StatusActive string
-		if user.StatusActive != nil {
-			StatusActive = strconv.FormatBool(*user.StatusActive)
-		} else {
-			StatusActive = ""
-		}
-		var TelegramID string
-		if user.TelegramID != nil {
-			TelegramID = *user.TelegramID
-		} else {
-			TelegramID = ""
-		}
-		var userVerifyDT string
-		if user.VerifyDt != nil {
-			userVerifyDT = user.VerifyDt.Format("2006-01-02 15:04:05")
-		} else {
-			userVerifyDT = ""
-		}
-		var BDay string
-		if user.BDay != nil {
-			BDay = user.BDay.Format("2006-01-02")
-		} else {
-			BDay = ""
-		}
-		var RegDate string
-		if user.RegDate != nil {
-			RegDate = user.RegDate.Format("2006-01-02")
-		} else {
-			RegDate = ""
-		}
-		var Verify string
-		if user.RegDate != nil {
-			Verify = strconv.FormatBool(*user.Verify)
-		} else {
-			Verify = ""
-		}
-		var MiddleName string
-		if user.MiddleName != nil {
-			MiddleName = *user.MiddleName
-		} else {
-			MiddleName = ""
-		}
-		var Surname string
-		if user.Surname != nil {
-			Surname = *user.Surname
-		} else {
-			Surname = ""
-		}
-		var Name string
-		if user.Name != nil {
-			Name = *user.Name
-		} else {
-			Name = ""
-		}
-		var GroupCreate string
-		if user.GroupCreate != nil {
-			GroupCreate = user.GroupCreate.Format("2006-01-02 15:04:05")
-		} else {
-			GroupCreate = ""
-		}
 		err := writer.Write([]string{
 			strconv.Itoa(user.ID),
-			ClubID,
+			getValueString(user.ClubID, func(v int) string { return strconv.Itoa(v) }),
 			user.Login,
-			Password,
+			getValueString(user.Password, func(v string) string { return v }),
 			user.Phone,
 			user.Email,
-			Icon,
-			Amount,
-			Bonus,
-			TotalTime,
-			FullName,
-			StatusActive,
-			TelegramID,
-			*user.VKID,
-			RegDate,
-			BDay,
-			Verify,
-			userVerifyDT,
-			MiddleName,
-			Surname,
-			Name,
+			getValueString(user.Icon, func(v string) string { return v }),
+			getValueString(user.Amount, func(v float64) string { return strconv.FormatFloat(v, 'f', -1, 64) }),
+			getValueString(user.Bonus, func(v float64) string { return strconv.FormatFloat(v, 'f', -1, 64) }),
+			getValueString(user.TotalTime, func(v int) string { return strconv.Itoa(v) }),
+			getValueString(user.FullName, func(v string) string { return v }),
+			getValueString(user.StatusActive, func(v bool) string { return strconv.FormatBool(v) }),
+			getValueString(user.TelegramID, func(v string) string { return v }),
+			getValueString(user.VKID, func(v string) string { return v }),
+			getValueString(user.RegDate, func(v time.Time) string { return v.Format("2006-01-02") }),
+			getValueString(user.BDay, func(v time.Time) string { return v.Format("2006-01-02") }),
+			getValueString(user.Verify, func(v bool) string { return strconv.FormatBool(v) }),
+			getValueString(user.VerifyDt, func(v time.Time) string { return v.Format("2006-01-02 15:04:05") }),
+			getValueString(user.MiddleName, func(v string) string { return v }),
+			getValueString(user.Surname, func(v string) string { return v }),
+			getValueString(user.Name, func(v string) string { return v }),
 			strconv.Itoa(user.GroupID),
 			strconv.FormatFloat(user.GroupAmount, 'f', -1, 64),
-			GroupCreate,
+			getValueString(user.GroupCreate, func(v time.Time) string { return v.Format("2006-01-02 15:04:05") }),
 		})
 
 		if err != nil {
@@ -306,6 +208,7 @@ func runExportClients(clients []ClientTable) string {
 	}
 	return fileName
 }
+
 func insertNewRecords(clientsFromFile [][]string) {
 	for _, clientFromFile := range clientsFromFile {
 		var client ClientTable
