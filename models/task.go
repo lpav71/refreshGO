@@ -43,6 +43,7 @@ func (Task) TableName() string {
 func (Task) Tasks(w http.ResponseWriter, r *http.Request) {
 	clubId := r.FormValue("club_id")
 	var tasks []Task1
+
 	err := Database.Table("task").
 		Select("task.id, club_id, admin_id, TO_CHAR(create_dt, 'DD.MM.YYYY HH24:MI') as create_dt, employ, descript_admin, color").
 		Joins("JOIN task_description ON task_description.id = task.status").
@@ -51,14 +52,11 @@ func (Task) Tasks(w http.ResponseWriter, r *http.Request) {
 		Find(&tasks).Error
 
 	if err != nil {
+		http.Error(w, "Error fetching tasks", http.StatusInternalServerError)
 		return
 	}
-	jsonData, err := json.Marshal(tasks)
-	if err != nil {
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
+
+	respondWithJSON(w, tasks)
 }
 
 func (Task) SaveEditModal(w http.ResponseWriter, r *http.Request) {
@@ -71,41 +69,49 @@ func (Task) SaveEditModal(w http.ResponseWriter, r *http.Request) {
 	clubID := r.FormValue("club_id")
 	adminID := r.FormValue("admin_id")
 
-	datePublicParsed, _ := time.Parse("02.01.2006 15:04", datePublic)
-	daysInt, _ := strconv.Atoi(days)
-	hoursInt, _ := strconv.Atoi(hours)
+	datePublicParsed, err := time.Parse("02.01.2006 15:04", datePublic)
+	if err != nil {
+		http.Error(w, "Invalid date format", http.StatusBadRequest)
+		return
+	}
 
-	endDT := datePublicParsed.AddDate(0, 0, daysInt).Add(time.Duration(hoursInt) * time.Hour)
+	endDT := datePublicParsed.AddDate(0, 0, StrToInt(days)).Add(time.Duration(StrToInt(hours)) * time.Hour)
 
 	var task Task
-	Database.First(&task, "id = ?", idTask)
+	if err := Database.First(&task, idTask).Error; err != nil {
+		http.Error(w, "Task not found", http.StatusNotFound)
+		return
+	}
+
 	task.DescriptAdmin = &descriptAdmin
 	task.CreateDt = &datePublicParsed
 	task.EndDt = &endDT
+	task.Employ = intPtr(StrToInt(executor))
+	task.AdminID = intPtr(StrToInt(adminID))
+	task.ClubID = intPtr(StrToInt(clubID))
 
-	executorInt, _ := strconv.Atoi(executor)
-	taskEmploy := executorInt
-	task.Employ = &taskEmploy
+	if err := Database.Save(&task).Error; err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
-	adminIDInt, _ := strconv.Atoi(adminID)
-	taskAdminID := adminIDInt
-	task.AdminID = &taskAdminID
+	respondWithJSON(w, task)
+}
 
-	clubIDInt, _ := strconv.Atoi(clubID)
-	taskClubID := clubIDInt
-	task.ClubID = &taskClubID
+func StrToInt(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
+}
 
-	err := Database.Save(&task)
-	if err.Error != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
+func intPtr(i int) *int {
+	return &i
+}
 
-		jsonData := []byte(`{"message": "Bad Request"}`)
+func respondWithJSON(w http.ResponseWriter, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	if jsonData, err := json.Marshal(data); err == nil {
 		w.Write(jsonData)
 	} else {
-		jsonData, _ := json.Marshal(task)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
+		http.Error(w, "Failed to convert to JSON", http.StatusInternalServerError)
 	}
 }
