@@ -159,7 +159,6 @@ func getValueString[T any](ptr *T, formatFunc func(T) string) string {
 	}
 	return formatFunc(*ptr)
 }
-
 func runExportClients(clients []ClientTable) string {
 	date := time.Now().Format("2006-01-02 15:04:05")
 	fileName := fmt.Sprintf("%x.csv", md5.Sum([]byte(date)))
@@ -208,69 +207,80 @@ func runExportClients(clients []ClientTable) string {
 	}
 	return fileName
 }
-
 func insertNewRecords(clientsFromFile [][]string) {
 	for _, clientFromFile := range clientsFromFile {
 		var client ClientTable
-		err := Database.Where("login = ?", clientFromFile[2]).First(&client).Error
-		if err != nil {
-			if strings.Contains(err.Error(), "record not found") {
-				// Создание нового клиента на основе данных из clientFromFile
-				var groupCreate *time.Time
-				if clientFromFile[23] != "" {
-					groupCreateTime, _ := time.Parse("2006-01-02", clientFromFile[24])
-					groupCreate = &groupCreateTime
-				}
-				clientFromFile1, _ := strconv.Atoi(clientFromFile[1])
-				clientFromFile9, _ := strconv.Atoi(clientFromFile[9])
-				clientFromFile7, _ := strconv.ParseFloat(clientFromFile[7], 64)
-				clientFromFile8, _ := strconv.ParseFloat(clientFromFile[8], 64)
-				statusActive := clientFromFile[11]
-				temp, _ := strconv.ParseBool(statusActive)
-				statusActiveBool := &temp
-				var RegDate *time.Time
-				if clientFromFile[14] != "" {
-					RegDate = parseDateTime(clientFromFile[14])
-				} else {
-					RegDate = nil
-				}
-				var Verify *bool
-				if clientFromFile[16] != "" {
-					temp2, _ := strconv.ParseBool(clientFromFile[16])
-					Verify = &temp2
-				}
-				GroupId, _ := strconv.Atoi(clientFromFile[21])
-				GroupAmount, _ := strconv.ParseFloat(clientFromFile[22], 64)
+		if err := Database.Where("login = ?", clientFromFile[2]).First(&client).Error; err != nil && strings.Contains(err.Error(), "record not found") {
+			groupCreate := parseOptionalDate(clientFromFile[24])
+			clubID := parseInt(clientFromFile[1])
+			amount := parseFloat(clientFromFile[7])
+			bonus := parseFloat(clientFromFile[8])
+			totalTime := parseInt(clientFromFile[9])
+			statusActive := parseBool(clientFromFile[11])
+			regDate := parseOptionalDate(clientFromFile[14])
+			verify := parseOptionalBool(clientFromFile[16])
+			groupID := parseInt(clientFromFile[21])
+			groupAmount := parseFloat(clientFromFile[22])
 
-				client := ClientTable{
-					ClubID:       &clientFromFile1,
-					Login:        clientFromFile[2],
-					Password:     &clientFromFile[3],
-					Phone:        clientFromFile[4],
-					Email:        clientFromFile[5],
-					Icon:         &clientFromFile[6],
-					Amount:       &clientFromFile7,
-					Bonus:        &clientFromFile8,
-					TotalTime:    &clientFromFile9,
-					FullName:     &clientFromFile[10],
-					StatusActive: statusActiveBool,
-					TelegramID:   &clientFromFile[12],
-					VKID:         &clientFromFile[13],
-					RegDate:      RegDate,
-					BDay:         parseDateTime(clientFromFile[15]),
-					Verify:       Verify,
-					VerifyDt:     parseDateTime(clientFromFile[17]),
-					Name:         &clientFromFile[18],
-					Surname:      &clientFromFile[19],
-					MiddleName:   &clientFromFile[20],
-					GroupID:      GroupId,
-					GroupAmount:  GroupAmount,
-					GroupCreate:  groupCreate,
-				}
-				Database.Create(&client)
+			client := ClientTable{
+				ClubID:       clubID,
+				Login:        clientFromFile[2],
+				Password:     &clientFromFile[3],
+				Phone:        clientFromFile[4],
+				Email:        clientFromFile[5],
+				Icon:         &clientFromFile[6],
+				Amount:       amount,
+				Bonus:        bonus,
+				TotalTime:    totalTime,
+				FullName:     &clientFromFile[10],
+				StatusActive: &statusActive,
+				TelegramID:   &clientFromFile[12],
+				VKID:         &clientFromFile[13],
+				RegDate:      regDate,
+				BDay:         parseDateTime(clientFromFile[15]),
+				Verify:       verify,
+				VerifyDt:     parseDateTime(clientFromFile[17]),
+				Name:         &clientFromFile[18],
+				Surname:      &clientFromFile[19],
+				MiddleName:   &clientFromFile[20],
+				GroupID:      *groupID,
+				GroupAmount:  *groupAmount,
+				GroupCreate:  groupCreate,
 			}
+			Database.Create(&client)
 		}
 	}
+}
+
+func parseOptionalDate(dateStr string) *time.Time {
+	if dateStr == "" {
+		return nil
+	}
+	timeParsed, _ := time.Parse("2006-01-02", dateStr)
+	return &timeParsed
+}
+func parseInt(str string) *int {
+	if val, err := strconv.Atoi(str); err == nil {
+		return &val
+	}
+	return nil
+}
+func parseFloat(str string) *float64 {
+	if val, err := strconv.ParseFloat(str, 64); err == nil {
+		return &val
+	}
+	return nil
+}
+func parseBool(str string) bool {
+	result, _ := strconv.ParseBool(str)
+	return result
+}
+func parseOptionalBool(str string) *bool {
+	if str == "" {
+		return nil
+	}
+	result := parseBool(str)
+	return &result
 }
 func parseDateTime(dateTimeStr string) *time.Time {
 	if dateTimeStr == "" {
