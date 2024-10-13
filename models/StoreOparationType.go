@@ -14,10 +14,17 @@ func (StoreOperationType) TableName() string {
 	return "store_operation_type"
 }
 
-func (StoreOperationType) GetStoreOparationType(w http.ResponseWriter, r *http.Request) {
+func (StoreOperationType) GetStoreOperationType(w http.ResponseWriter, r *http.Request) {
 	var storeOperationTypes []StoreOperationType
-	Database.Find(&storeOperationTypes)
-	jsonData, _ := json.Marshal(storeOperationTypes)
+
+	// Запрос на получение типов операций
+	if err := Database.Find(&storeOperationTypes).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonData)
+	if err := json.NewEncoder(w).Encode(storeOperationTypes); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
