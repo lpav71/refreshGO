@@ -45,38 +45,36 @@ func (ProductType) TableName() string {
 }
 
 func (Store) GetAll(w http.ResponseWriter, r *http.Request) {
-	clubID := r.FormValue("club_id")
-	clubIDInt, _ := strconv.Atoi(clubID)
+	clubID, _ := strconv.Atoi(r.FormValue("club_id"))
 
-	var store []Store
-	var storeChan = make(chan []Store, 1)
+	storeChan := make(chan []Store)
+	productTypeChan := make(chan []ProductType)
 
-	var productType []ProductType
-	var productTypeChan = make(chan []ProductType, 1)
-	go getAllStore(clubIDInt, storeChan)
-	go getProductType(clubIDInt, productTypeChan)
-	store = <-storeChan
-	productType = <-productTypeChan
+	go getAllStore(clubID, storeChan)
+	go getProductType(clubID, productTypeChan)
+
+	store := <-storeChan
+	productType := <-productTypeChan
 
 	outData := []interface{}{store, productType}
 
-	jsonData, _ := json.Marshal(outData)
-	w.Write(jsonData)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(outData)
 }
 
 func getAllStore(clubID int, storeChan chan []Store) {
 	var stores []Store
 
 	err := Database.Table("store").
-		Select("store.id as storeid", "*").
-		Where("store.club_id = ?", clubID).
-		Where("product_type.club_id", clubID).
+		Select("store.id as storeid, store.*").
 		Joins("JOIN product_type ON store.types = product_type.types").
+		Where("store.club_id = ?", clubID).
 		Order("storeid").
 		Find(&stores).Error
 
 	if err != nil {
 		storeChan <- nil
+		return
 	}
 
 	storeChan <- stores
